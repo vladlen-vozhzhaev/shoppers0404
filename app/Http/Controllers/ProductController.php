@@ -31,4 +31,5 @@ class ProductController extends Controller
         $product = Good::where('id', $id)->first(); // Достаём товар по его id из базы данных
         return view('pages.shopSingle', ['product'=>$product]); // Передаём товар в шаблон
     }
+
 }
