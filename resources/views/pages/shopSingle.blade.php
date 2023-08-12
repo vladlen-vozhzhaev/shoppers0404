@@ -39,6 +39,32 @@
                 </div>
             </div>
         </div>
+        <div class="container my-3">
+            <h3 class="my-3">Отзывы</h3>
+            <div class="col-sm-8 my-3">
+                <form onsubmit="sendForm(this); return false;">
+                    @csrf
+                    <input type="hidden" name="productId" value="{{$product->id}}">
+                    <div class="mb-3">
+                        <textarea name="review" class="form-control" placeholder="Отзыв"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        Оценка
+                        <select name="mark" class="form-control">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="submit" class="form-control btn btn-primary" value="Добавить отзыв">
+                    </div>
+                </form>
+            </div>
+            <div id="reviewsBlock"></div>
+        </div>
     </div>
 
     <div class="site-section block-3 site-blocks-2 bg-light">
@@ -116,4 +142,41 @@
             </div>
         </div>
     </div>
+    <script>
+        let reviewsBlock = document.getElementById('reviewsBlock');
+        function getReviews(){
+            reviewsBlock.innerHTML = "";
+            fetch('/getReviews/{{$product->id}}')
+                .then(response=>response.json())
+                .then(result=>{
+                    console.log(result);
+                    for (let i = 0; i < result.length; i++) {
+                        let reviewsHTML = `
+                        <div>
+                            <p><strong>Пользователь:</strong> ${result[i].userName} | ${result[i].created_at}</p>
+                            <p><strong>Отзыв:</strong> ${result[i].review}</p>
+                            <p><strong>Оценка:</strong> ${result[i].mark}</p>
+                            <hr>
+                        </div>
+                    `;
+                        reviewsBlock.innerHTML += reviewsHTML; // reviewsBlock = reviewsBlock + reviewsHTML
+                    }
+                });
+        }
+        getReviews();
+
+        function sendForm(form){
+            let formData = new FormData(form);
+            document.getElementsByName('review')[0].value = "";
+            document.getElementsByName('mark')[0].value = 1;
+            fetch('/addReview', {
+                method: "post",
+                body: formData
+            }).then(response=>response.json())
+                .then(function(result){
+                    console.log(result);
+                    getReviews();
+                });
+        }
+    </script>
 @endsection
